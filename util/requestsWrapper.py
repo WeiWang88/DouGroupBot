@@ -3,6 +3,7 @@ import time
 
 from util.DouUtil import log
 
+
 class ReqWrapper:
     def __init__(self):
         if not hasattr(type(self), '_session'):
@@ -23,8 +24,8 @@ class ReqWrapper:
                 if retry < 1:
                     log.error("Retries end", e)
                     raise e
-                time.sleep(2)    
-    
+                time.sleep(2)
+
     def post(self, url, **kwargs):
         retry = 5
         while True:

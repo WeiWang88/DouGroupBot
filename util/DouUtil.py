@@ -9,14 +9,15 @@ import re
 
 from util import Logger as myLogger
 
-
 from config import myConfig
 
 log = myLogger.Logger()
 
+
 def getCookiesFromSession(session):
     cookies = session.cookies.get_dict()
     return cookies
+
 
 def getCkFromCookies(session):
     cookies = getCookiesFromSession(session)
@@ -27,6 +28,7 @@ def getCkFromCookies(session):
 
     return ck
 
+
 def loadCookies():
     cookies = {}
     with open('resources/cookies.txt', "r", encoding='utf-8') as f_cookie:
@@ -36,14 +38,16 @@ def loadCookies():
             cookies[key] = value
         return cookies
 
+
 def flushCookies(session: requests.Session):
     cookies = session.cookies.get_dict()
     line = ""
     with open('resources/cookies.txt', "w", encoding='utf-8') as f_cookie:
         for k, v in cookies.items():
-            line += k +'='+v+'; '
-        line = line[:len(line)-2]
+            line += k + '=' + v + '; '
+        line = line[:len(line) - 2]
         f_cookie.write(line)
+
 
 def getCred(fileName='confidentials/pwd.txt'):
     data = {}
@@ -52,7 +56,7 @@ def getCred(fileName='confidentials/pwd.txt'):
         for li in lines:
             k, v = li.strip().split('=')
             data[k.strip()] = v.strip()
-    
+
     return data
 
 
@@ -61,19 +65,20 @@ def getAccessToken():
     cred = getCred('')
     myid = cred['myid']
     mysecret = cred['mysecret']
-    url = url + '&client_id='+myid+'&client_secret='+mysecret
+    url = url + '&client_id=' + myid + '&client_secret=' + mysecret
     json = requests.get(url).json()
     # if json.get('error') is None:
     return json['access_token']
-    
+
+
 def getTextFromPic(fileName) -> str:
     img = None
     # 二进制方式打开图片文件
     with open(fileName, 'rb') as f:
         img = base64.b64encode(f.read())
 
-    params = {"image":img, 'language_type':'ENG'}
-    header = {'Content-Type':'application/x-www-form-urlencoded'}
+    params = {"image": img, 'language_type': 'ENG'}
+    header = {'Content-Type': 'application/x-www-form-urlencoded'}
     request_url = ""
     accessToken = getAccessToken()
     request_url = request_url + "?access_token=" + accessToken
@@ -88,6 +93,7 @@ def getTextFromPic(fileName) -> str:
     text = resp['words_result'][0]['words'].lower()
     return re.sub(r"[^a-z]+", '', text)
 
+
 def getCaptchaInfo(session, postUrl, r=None):
     if r is not None:
         return parseCaptchaInfo(r)
@@ -99,11 +105,13 @@ def getCaptchaInfo(session, postUrl, r=None):
     pic_id = html.xpath("")
     return pic_url[0], pic_id[0]
 
+
 def parseCaptchaInfo(r):
     html = etree.HTML(r.text)
     pic_url = html.xpath("")
     pic_id = html.xpath("")
     return pic_url[0], pic_id[0]
+
 
 def save_pic_to_disk(pic_url, session):
     # 将链接中的图片保存到本地，并返回文件名
@@ -122,7 +130,7 @@ def save_pic_to_disk(pic_url, session):
             return file_name
         else:
             log.warning("in func save_pic_to_disk(), fail to save pic. pic_url: " + pic_url +
-                                      ", res.status_code: " + str(res.status_code))
+                        ", res.status_code: " + str(res.status_code))
             raise Exception
     except Exception as e:
         log.error(e)
@@ -138,5 +146,5 @@ if __name__ == "__main__":
     path = 'resources/captchas/'
     li = os.listdir(path)
     for entry in li:
-        text = getTextFromPic(path+entry)
+        text = getTextFromPic(path + entry)
         print(text)
