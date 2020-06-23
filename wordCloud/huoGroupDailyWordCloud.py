@@ -8,10 +8,9 @@ from wordcloud import WordCloud
 import matplotlib.pyplot as plt
 
 words = ["火箭少女", "孟美岐", "吴宣仪", "杨超越", "段奥娟", "Yamy", "赖美云", "张紫宁", "紫宁", "Sunnee", "李紫婷",
-         "傅菁", "徐梦洁", "肖战", "王一博"]
+         "杨芸晴", "傅菁", "徐梦洁", "肖战", "王一博"]
 for w in words:
     jieba.add_word(w)
-
 
 # ptd = (datetime.datetime.today() - datetime.timedelta(days=1)).strftime('%m-%d')
 ptd = datetime.datetime.today().strftime('%m-%d')
@@ -29,21 +28,25 @@ for i in range(0, 60):
     startCount = i * 25
     resp = s.get('https://www.douban.com/group/ihuo/discussion?start={0}'.format(startCount))
     soup = BeautifulSoup(resp.text, 'html.parser')
-    subSoup = soup.find('table', {"class":"olt"})
-    subSoup = subSoup.find_all('tr', {"class":""})
+    subSoup = soup.find('table', {"class": "olt"})
+    subSoup = subSoup.find_all('tr', {"class": ""})
 
     for s in subSoup:
-        threadTime = s.find("td", {"nowrap":"nowrap", "class":"time"}).contents[0]
+        threadTime = s.find("td", {"nowrap": "nowrap", "class": "time"}).contents[0]
         tdate_s = datetime.datetime.strptime(threadTime, "%m-%d %H:%M").strftime("%m-%d")
         if tdate_s == ptd:
-            title = s.find('td', {"class":"title"})
-            title = title.find("a", {"class":""}).get("title")
+            title = s.find('td', {"class": "title"})
+            title = title.find("a", {"class": ""}).get("title")
             allDiscussions.append(title)
-    print("finished reading {0} - {1}".format(i+1, 60))
+    print("finished reading {0} - {1}".format(i + 1, 60))
     time.sleep(1)
 
 total_dis = " ".join(allDiscussions)
 mytext = " ".join(jieba.cut(total_dis))
-wordcloud = WordCloud(font_path="simsun.ttf").generate(mytext)
-plt.imshow(wordcloud, interpolation='bilinear')
+wordcloud = WordCloud(font_path="simsun.ttf", width=1500, height=700).generate(mytext)
+fig = plt.figure(figsize=(15, 7), dpi=100)
+fig.add_axes([0, 0, 1, 1])
+plt.imshow(wordcloud, interpolation='nearest', aspect='auto')
 plt.axis("off")
+plt.savefig('c:/test/wordCloud.png', figsize=(15, 7), dpi=100)
+plt.show()
