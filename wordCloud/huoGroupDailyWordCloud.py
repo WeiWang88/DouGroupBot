@@ -8,7 +8,8 @@ from wordcloud import WordCloud
 import matplotlib.pyplot as plt
 
 words = ["火箭少女", "孟美岐", "吴宣仪", "杨超越", "段奥娟", "Yamy", "赖美云", "张紫宁", "紫宁", "Sunnee", "李紫婷",
-         "杨芸晴", "傅菁", "徐梦洁", "肖战", "王一博"]
+         "杨芸晴", "傅菁", "徐梦洁", "肖战", "王一博", "XZ", "wyb", "吴博", "啵啵", "百香桶", "丁禹兮", "蔡徐坤",
+         "新京报"]
 for w in words:
     jieba.add_word(w)
 
@@ -16,7 +17,8 @@ for w in words:
 ptd = datetime.datetime.today().strftime('%m-%d')
 
 allDiscussions = []
-for i in range(0, 60):
+total_page = 50
+for i in range(0, total_page):
     s = requests.session()
     s.headers.update({
         'Host': 'www.douban.com',
@@ -31,6 +33,7 @@ for i in range(0, 60):
     subSoup = soup.find('table', {"class": "olt"})
     subSoup = subSoup.find_all('tr', {"class": ""})
 
+    add_count = 0
     for s in subSoup:
         threadTime = s.find("td", {"nowrap": "nowrap", "class": "time"}).contents[0]
         tdate_s = datetime.datetime.strptime(threadTime, "%m-%d %H:%M").strftime("%m-%d")
@@ -38,7 +41,8 @@ for i in range(0, 60):
             title = s.find('td', {"class": "title"})
             title = title.find("a", {"class": ""}).get("title")
             allDiscussions.append(title)
-    print("finished reading {0} - {1}".format(i + 1, 60))
+            add_count = add_count + 1
+    print("finished reading {0} - {1}, added {2}".format(i + 1, total_page, add_count))
     time.sleep(1)
 
 total_dis = " ".join(allDiscussions)
